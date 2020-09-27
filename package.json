@@ -19,7 +19,7 @@
   "scripts": {
     "lint": "eslint . && prettier --check \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\"",
     "fmt": "prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\"",
-    "test": "eslint ."
+    "test": "eslint . && metatests test/"
   },
   "engines": {
     "node": ">=12.9.0"
@@ -30,6 +30,7 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "metatests": "^0.7.2"
   }
 }
