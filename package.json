@@ -1,0 +1,25 @@
+{
+  "name": "metawatch",
+  "version": "0.0.0",
+  "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
+  "description": "Deep nested directories watch for node.js",
+  "license": "MIT",
+  "keywords": [
+    "fs",
+    "watch",
+    "metarhia"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metarhia/metawatch"
+  },
+  "main": "metawatch.js",
+  "readmeFilename": "README.md",
+  "files": [],
+  "scripts": {
+    "test": "eslint ."
+  },
+  "engines": {
+    "node": ">=12.9.0"
+  }
+}
