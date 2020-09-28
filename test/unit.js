@@ -21,13 +21,14 @@ metatests.test('Watch file change ', test => {
   }, TEST_TIMEOUT);
 
   let count = 0;
+  const expected = process.platform === darwin ? 1 : 2;
 
   metawatch(targetPath, (event, fileName) => {
     count++;
     test.strictSame(event, 'change');
     test.strictSame(fileName, 'file.ext');
     clearTimeout(timeout);
-    if (count === 2) {
+    if (count === expected) {
       test.end();
       setTimeout(() => {
         process.exit(0);
