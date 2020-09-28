@@ -21,7 +21,7 @@ metatests.test('Watch file change ', test => {
   }, TEST_TIMEOUT);
 
   let count = 0;
-  const expected = process.platform === darwin ? 1 : 2;
+  const expected = process.platform === 'darwin' ? 1 : 2;
 
   metawatch(targetPath, (event, fileName) => {
     count++;
