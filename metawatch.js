@@ -14,14 +14,14 @@ const watch = (targetPath, listener, timeout = 100) => {
     for (const file of files) {
       if (file.isDirectory()) {
         const dirPath = path.join(targetPath, file.name);
-        watch(dirPath, listener);
+        watch(dirPath, listener, timeout);
       }
     }
     fs.watch(targetPath, (event, fileName) => {
       const filePath = path.join(targetPath, fileName);
       try {
         fs.stat(filePath, (err, stats) => {
-          if (stats.isDirectory()) watch(filePath, listener);
+          if (stats.isDirectory()) watch(filePath, listener, timeout);
         });
       } catch {
         return;
