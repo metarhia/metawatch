@@ -6,6 +6,8 @@ const path = require('path');
 const metawatch = require('..');
 const metatests = require('metatests');
 
+const DebounceEmitter = require('../lib/debounceEmitter');
+
 const WATCH_TIMEOUT = 200;
 const TEST_TIMEOUT = 2000;
 
@@ -21,7 +23,7 @@ metatests.test('Watch file change ', test => {
   }, TEST_TIMEOUT);
 
   let count = 0;
-  const expected = process.platform === 'darwin' ? 1 : 2;
+  const expected = 1;
 
   metawatch(targetPath, (event, fileName) => {
     count++;
@@ -42,4 +44,35 @@ metatests.test('Watch file change ', test => {
       test.error(err, 'Can not write file');
     });
   }, WATCH_TIMEOUT);
+});
+
+metatests.test('Skip duplicated events ', test => {
+  const DEBOUNCE_TIMEOUT = 100;
+  const TEST_TIMEOUT = 300;
+
+  const events = [
+    { name: 'event-1', payload: 1 },
+    { name: 'event-2', payload: 2 },
+  ];
+  const resolvedEvents = [];
+
+  const ee = new DebounceEmitter(
+    event => resolvedEvents.push(event),
+    DEBOUNCE_TIMEOUT
+  );
+
+  const [event1, event2] = events;
+  for (let i = 0; i < 100; i++) {
+    ee.emit(event1.name, event1.payload);
+    ee.emit(event2.name, event2.payload);
+  }
+  setTimeout(() => {
+    ee.emit(event1.name, event1.payload);
+  }, DEBOUNCE_TIMEOUT);
+  ee.emit(event2.name, event2.payload);
+
+  setTimeout(() => {
+    test.strictSame(resolvedEvents, [1, 2, 1]);
+    test.end();
+  }, TEST_TIMEOUT);
 });
