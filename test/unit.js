@@ -6,7 +6,7 @@ const path = require('path');
 const metawatch = require('..');
 const metatests = require('metatests');
 
-const DebounceEmitter = require('../lib/debounceEmitter');
+const { DebounceEmitter } = require('../lib/debounceEmitter.js');
 
 const WATCH_TIMEOUT = 200;
 const TEST_TIMEOUT = 2000;

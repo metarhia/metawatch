@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DebounceEmitter = require('./lib/debounceEmitter');
+const { DebounceEmitter } = require('./lib/debounceEmitter.js');
 
 const getUniqueEvent = (targetPath, fileName, event) =>
   `${targetPath}.${fileName}.${event}`;
