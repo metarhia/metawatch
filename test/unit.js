@@ -44,7 +44,7 @@ metatests.test('Watch file change ', test => {
 });
 
 metatests.test('Skip duplicated events ', test => {
-  const DEBOUNCE = 1000;
+  const DEBOUNCE = 500;
 
   const expected = 1;
   let count = 0;
@@ -57,7 +57,7 @@ metatests.test('Skip duplicated events ', test => {
   const filePath = path.join(targetPath, 'file.ext');
 
   setTimeout(() => {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       fs.writeFile(filePath, 'example', 'utf8', err => {
         watcher.close();
         test.error(err, 'Can not write file');
