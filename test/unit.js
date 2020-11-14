@@ -3,10 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const metawatch = require('..');
+const Watcher = require('..');
 const metatests = require('metatests');
-
-const { DebounceEmitter } = require('../lib/debounceEmitter.js');
 
 const WATCH_TIMEOUT = 200;
 const TEST_TIMEOUT = 2000;
@@ -16,7 +14,7 @@ const dir = process.cwd();
 const targetPath = path.join(dir, 'test/example');
 
 metatests.test('Watch file change ', test => {
-  test.strictSame(typeof metawatch, 'function');
+  test.strictSame(typeof Watcher, 'function');
 
   const timeout = setTimeout(() => {
     test.fail();
@@ -25,54 +23,74 @@ metatests.test('Watch file change ', test => {
   let count = 0;
   const expected = 1;
 
-  metawatch(targetPath, (event, fileName) => {
+  const watcher = new Watcher();
+  watcher.watch(targetPath, (event, fileName) => {
     count++;
     test.strictSame(event, 'change');
     test.strictSame(fileName, 'file.ext');
     clearTimeout(timeout);
     if (count === expected) {
       test.end();
-      setTimeout(() => {
-        process.exit(0);
-      }, WATCH_TIMEOUT);
     }
   });
 
   setTimeout(() => {
     const filePath = path.join(targetPath, 'file.ext');
     fs.writeFile(filePath, 'example', 'utf8', err => {
+      watcher.close();
       test.error(err, 'Can not write file');
     });
   }, WATCH_TIMEOUT);
 });
 
 metatests.test('Skip duplicated events ', test => {
-  const DEBOUNCE_TIMEOUT = 100;
-  const TEST_TIMEOUT = 300;
+  const DEBOUNCE = 1000;
 
-  const events = [
-    { name: 'event-1', payload: 1 },
-    { name: 'event-2', payload: 2 },
-  ];
-  const resolvedEvents = [];
+  const expected = 1;
+  let count = 0;
 
-  const ee = new DebounceEmitter(
-    event => resolvedEvents.push(event),
-    DEBOUNCE_TIMEOUT
-  );
+  const watcher = new Watcher({ debounce: DEBOUNCE });
+  watcher.watch(targetPath, () => {
+    count++;
+  });
 
-  const [event1, event2] = events;
-  for (let i = 0; i < 100; i++) {
-    ee.emit(event1.name, event1.payload);
-    ee.emit(event2.name, event2.payload);
-  }
-  setTimeout(() => {
-    ee.emit(event1.name, event1.payload);
-  }, DEBOUNCE_TIMEOUT);
-  ee.emit(event2.name, event2.payload);
+  const filePath = path.join(targetPath, 'file.ext');
 
   setTimeout(() => {
-    test.strictSame(resolvedEvents, [1, 2, 1]);
+    for (let i = 0; i < 10; i++) {
+      fs.writeFile(filePath, 'example', 'utf8', err => {
+        watcher.close();
+        test.error(err, 'Can not write file');
+      });
+    }
+  }, WATCH_TIMEOUT);
+
+  setTimeout(() => {
+    watcher.close();
+    test.strictSame(count, expected);
+    test.end();
+  }, TEST_TIMEOUT);
+});
+
+metatests.test('Close watcher', test => {
+  const expected = 1;
+  let count = 0;
+
+  const mainWatcher = new Watcher();
+  mainWatcher.watch(targetPath, () => {});
+
+  setTimeout(() => {
+    mainWatcher.watchers.forEach(watcher => {
+      watcher.on('close', () => {
+        count++;
+      });
+    });
+    mainWatcher.close();
+  }, WATCH_TIMEOUT);
+
+  setTimeout(() => {
+    test.strictSame(count, expected);
+    test.strictSame(mainWatcher.isClosed, true);
     test.end();
   }, TEST_TIMEOUT);
 });
