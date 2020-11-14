@@ -6,7 +6,7 @@ const path = require('path');
 const Watcher = require('..');
 const metatests = require('metatests');
 
-const WATCH_TIMEOUT = 200;
+const WATCH_TIMEOUT = 400;
 const TEST_TIMEOUT = 2000;
 
 const dir = process.cwd();
