@@ -81,7 +81,6 @@ metatests.test('Close watcher', test => {
 
   setTimeout(() => {
     for (const watchersSet of mainWatcher.watchers.values()) {
-      console.log(watchersSet);
       for (const watcher of watchersSet.values()) {
         // eslint-disable-next-line no-loop-func
         watcher.on('close', () => {
