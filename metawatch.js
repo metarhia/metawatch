@@ -2,21 +2,40 @@
 
 const fs = require('fs');
 const path = require('path');
+const { promisify } = require('util');
+
+const fsReaddir = promisify(fs.readdir);
+const fsStat = promisify(fs.stat);
 
 const DEFAULT_DEBOUNCE = 10;
+
+const getUniqueEvent = (fileName, event) => `${fileName}.${event}`;
+
+const debounce = (listener, timeout) => {
+  const events = new Set();
+  return (event, fileName) => {
+    const uniqueEventName = getUniqueEvent(fileName, event);
+    if (events.has(uniqueEventName)) return;
+    events.add(uniqueEventName);
+    setTimeout(() => {
+      listener(event, fileName);
+      events.delete(uniqueEventName);
+    }, timeout);
+  };
+};
 
 class Watcher {
   constructor(config = {}) {
     this.debounce = config.debounce || DEFAULT_DEBOUNCE;
 
-    this.watchers = [];
+    this.watchers = new Map();
     this.isClosed = false;
   }
 
-  watch(targetPath, listener) {
-    const wrappedListener = this.debounceWrapper(listener, this.debounce);
-
-    fs.readdir(targetPath, { withFileTypes: true }, (err, files) => {
+  async watch(targetPath, listener) {
+    try {
+      const wrappedListener = debounce(listener, this.debounce);
+      const files = await fsReaddir(targetPath, { withFileTypes: true });
       if (this.isClosed) return;
 
       for (const file of files) {
@@ -25,43 +44,51 @@ class Watcher {
           this.watch(dirPath, listener);
         }
       }
-      const watcher = fs.watch(targetPath, (event, fileName) => {
+      const watcher = fs.watch(targetPath, async (event, fileName) => {
         const filePath = path.join(targetPath, fileName);
         try {
-          fs.stat(filePath, (err, stats) => {
-            if (stats.isDirectory()) {
-              this.watch(filePath, listener);
-            }
-          });
-        } catch {
-          return;
+          const stats = await fsStat(filePath);
+          if (stats.isDirectory()) {
+            this.watch(filePath, listener);
+          }
+        } catch (err) {
+          if (err.code === 'ENOENT') {
+            const { path } = err;
+            this._close(path);
+          }
         }
         wrappedListener(event, fileName);
       });
-      this.watchers.push(watcher);
-    });
+      this._add(targetPath, watcher);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  close() {
+  closeAll() {
     this.isClosed = true;
-    this.watchers.forEach(watcher => watcher.close());
+    for (const targetPath of this.watchers.keys()) {
+      this._close(targetPath);
+    }
   }
 
-  getUniqueEvent(fileName, event) {
-    return `${fileName}.${event}`;
+  _close(targetPath) {
+    const folderWatchers = this.watchers.get(targetPath);
+    if (folderWatchers) {
+      for (const watcher of folderWatchers) {
+        watcher.close();
+      }
+      this.watchers.delete(targetPath);
+    }
   }
 
-  debounceWrapper(listener, debounce) {
-    const events = new Set();
-    return (event, fileName) => {
-      const uniqueEventName = this.getUniqueEvent(fileName, event);
-      if (events.has(uniqueEventName)) return;
-      events.add(uniqueEventName);
-      setTimeout(() => {
-        listener(event, fileName);
-        events.delete(uniqueEventName);
-      }, debounce);
-    };
+  _add(targetPath, watcher) {
+    const folderWatchers = this.watchers.get(targetPath);
+    if (folderWatchers) {
+      folderWatchers.add(watcher);
+      return;
+    }
+    this.watchers.set(targetPath, new Set([watcher]));
   }
 }
 

@@ -37,7 +37,7 @@ metatests.test('Watch file change ', test => {
   setTimeout(() => {
     const filePath = path.join(targetPath, 'file.ext');
     fs.writeFile(filePath, 'example', 'utf8', err => {
-      watcher.close();
+      watcher.closeAll();
       test.error(err, 'Can not write file');
     });
   }, WATCH_TIMEOUT);
@@ -59,14 +59,14 @@ metatests.test('Skip duplicated events ', test => {
   setTimeout(() => {
     for (let i = 0; i < 5; i++) {
       fs.writeFile(filePath, 'example', 'utf8', err => {
-        watcher.close();
+        watcher.closeAll();
         test.error(err, 'Can not write file');
       });
     }
   }, WATCH_TIMEOUT);
 
   setTimeout(() => {
-    watcher.close();
+    watcher.closeAll();
     test.strictSame(count, expected);
     test.end();
   }, TEST_TIMEOUT);
@@ -80,12 +80,16 @@ metatests.test('Close watcher', test => {
   mainWatcher.watch(targetPath, () => {});
 
   setTimeout(() => {
-    mainWatcher.watchers.forEach(watcher => {
-      watcher.on('close', () => {
-        count++;
-      });
-    });
-    mainWatcher.close();
+    for (const watchersSet of mainWatcher.watchers.values()) {
+      console.log(watchersSet);
+      for (const watcher of watchersSet.values()) {
+        // eslint-disable-next-line no-loop-func
+        watcher.on('close', () => {
+          count++;
+        });
+      }
+    }
+    mainWatcher.closeAll();
   }, WATCH_TIMEOUT);
 
   setTimeout(() => {
