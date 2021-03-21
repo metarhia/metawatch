@@ -42,14 +42,11 @@ class DirectoryWatcher extends EventEmitter {
     if (this.watchers.get(targetPath)) return;
     const watcher = fs.watch(targetPath, (event, fileName) => {
       const filePath = path.join(targetPath, fileName);
-      try {
-        fs.stat(filePath, (err, stats) => {
-          if (stats.isDirectory()) this.watch(filePath);
-        });
-      } catch {
-        return;
-      }
-      this.emit(event, fileName);
+      fs.stat(filePath, (err, stats) => {
+        if (err) return;
+        if (stats.isDirectory()) this.watch(filePath);
+        this.post(event, filePath);
+      });
     });
     this.watchers.set(targetPath, watcher);
   }
@@ -58,6 +55,7 @@ class DirectoryWatcher extends EventEmitter {
     const watcher = this.watchers[targetPath];
     if (watcher) return;
     fs.readdir(targetPath, { withFileTypes: true }, (err, files) => {
+      if (err) return;
       for (const file of files) {
         if (file.isDirectory()) {
           const dirPath = path.join(targetPath, file.name);
