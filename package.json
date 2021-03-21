@@ -1,6 +1,6 @@
 {
   "name": "metawatch",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
   "description": "Deep nested directories watch for node.js",
   "license": "MIT",
@@ -13,16 +13,25 @@
     "type": "git",
     "url": "https://github.com/metarhia/metawatch"
   },
+  "bugs": {
+    "url": "https://github.com/metarhia/metawatch/issues",
+    "email": "timur.shemsedinov@gmail.com"
+  },
+  "homepage": "https://metarhia.com",
+  "funding": {
+    "type": "patreon",
+    "url": "https://www.patreon.com/tshemsedinov"
+  },
   "main": "metawatch.js",
   "readmeFilename": "README.md",
   "files": [],
+  "engines": {
+    "node": "^12.9 || 14 || 15"
+  },
   "scripts": {
     "lint": "eslint . && prettier --check \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\"",
     "fmt": "prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\"",
     "test": "eslint . && metatests test/"
-  },
-  "engines": {
-    "node": ">=12.9.0"
   },
   "devDependencies": {
     "eslint": "^7.22.0",
