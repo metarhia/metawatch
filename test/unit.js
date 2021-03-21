@@ -14,7 +14,7 @@ const dir = process.cwd();
 const targetPath = path.join(dir, 'test/example');
 
 metatests.test('Watch file change ', test => {
-  test.strictSame(typeof metawatch, 'function');
+  test.strictSame(typeof metawatch, 'object');
 
   const timeout = setTimeout(() => {
     test.fail();
@@ -23,9 +23,10 @@ metatests.test('Watch file change ', test => {
   let count = 0;
   const expected = process.platform === 'darwin' ? 1 : 2;
 
-  metawatch(targetPath, (event, fileName) => {
+  const watcher = new metawatch.DirectoryWatcher();
+  watcher.watch(targetPath);
+  watcher.on('change', (fileName) => {
     count++;
-    test.strictSame(event, 'change');
     test.strictSame(fileName, 'file.ext');
     clearTimeout(timeout);
     if (count === expected) {
