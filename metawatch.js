@@ -20,7 +20,7 @@ class DirectoryWatcher extends EventEmitter {
     if (this.timer) clearTimeout(this.timer);
     this.timer = setTimeout(() => {
       this.sendQueue();
-    }, this.timer);
+    }, this.timeout);
     const key = event + ':' + fileName;
     if (this.index.includes(key)) return;
     this.queue.push({ event, fileName });
