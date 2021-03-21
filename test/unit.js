@@ -6,7 +6,9 @@ const path = require('path');
 const metawatch = require('..');
 const metatests = require('metatests');
 
-const WATCH_TIMEOUT = 200;
+const OPTIONS = { timeout: 200 };
+const WRITE_TIMEOUT = 100;
+const EXIT_TIMEOUT = 500;
 const TEST_TIMEOUT = 2000;
 
 const dir = process.cwd();
@@ -20,21 +22,15 @@ metatests.test('Watch file change ', test => {
     test.fail();
   }, TEST_TIMEOUT);
 
-  let count = 0;
-  const expected = process.platform === 'darwin' ? 1 : 2;
-
-  const watcher = new metawatch.DirectoryWatcher();
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
   watcher.watch(targetPath);
   watcher.on('change', (fileName) => {
-    count++;
-    test.strictSame(fileName, 'file.ext');
+    test.strictSame(fileName.endsWith('file.ext'), true);
     clearTimeout(timeout);
-    if (count === expected) {
-      test.end();
-      setTimeout(() => {
-        process.exit(0);
-      }, WATCH_TIMEOUT);
-    }
+    test.end();
+    setTimeout(() => {
+      process.exit(0);
+    }, EXIT_TIMEOUT);
   });
 
   setTimeout(() => {
@@ -42,5 +38,5 @@ metatests.test('Watch file change ', test => {
     fs.writeFile(filePath, 'example', 'utf8', err => {
       test.error(err, 'Can not write file');
     });
-  }, WATCH_TIMEOUT);
+  }, WRITE_TIMEOUT);
 });
