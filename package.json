@@ -23,15 +23,19 @@
     "url": "https://www.patreon.com/tshemsedinov"
   },
   "main": "metawatch.js",
+  "types": "types/metawatch.d.ts",
   "readmeFilename": "README.md",
-  "files": [],
+  "files": [
+    "types/"
+  ],
   "engines": {
     "node": "^12.9 || 14 || 15"
   },
   "scripts": {
-    "lint": "eslint . && prettier --check \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\"",
-    "fmt": "prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\"",
-    "test": "eslint . && metatests test/"
+    "test": "npm run lint && npm run types && metatests test/",
+    "types": "tsc -p types/tsconfig.json",
+    "lint": "eslint . && prettier -c \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\"",
+    "fmt": "prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\""
   },
   "devDependencies": {
     "eslint": "^7.22.0",
@@ -40,6 +44,8 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
     "metatests": "^0.7.2",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "@types/node": "^14.14.35",
+    "typescript": "^4.2.3"
   }
 }
