@@ -15,7 +15,7 @@ const dir = process.cwd();
 
 const targetPath = path.join(dir, 'test/example');
 
-metatests.test('Watch file change ', test => {
+metatests.test('Watch file change ', (test) => {
   test.strictSame(typeof metawatch, 'object');
 
   const timeout = setTimeout(() => {
@@ -35,7 +35,7 @@ metatests.test('Watch file change ', test => {
 
   setTimeout(() => {
     const filePath = path.join(targetPath, 'file.ext');
-    fs.writeFile(filePath, 'example', 'utf8', err => {
+    fs.writeFile(filePath, 'example', 'utf8', (err) => {
       test.error(err, 'Can not write file');
     });
   }, WRITE_TIMEOUT);
