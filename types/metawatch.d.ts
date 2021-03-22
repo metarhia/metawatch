@@ -1,7 +1,7 @@
 import EventEmitter = require('events');
 
 export class DirectoryWatcher extends EventEmitter {
-  watchers: Map<string, FSWatcher>;
+  watchers: Map<string, NodeJS.FSWatcher>;
   timeout: number;
   timer: NodeJS.Timer;
   queue: Array<string>;

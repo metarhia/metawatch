@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Typing .d.ts added
+
 To be released in 1.0.0
 
 - Watch directories recursive
