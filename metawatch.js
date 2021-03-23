@@ -16,14 +16,14 @@ class DirectoryWatcher extends EventEmitter {
     this.index = [];
   }
 
-  post(event, fileName) {
+  post(event, filePath) {
     if (this.timer) clearTimeout(this.timer);
     this.timer = setTimeout(() => {
       this.sendQueue();
     }, this.timeout);
-    const key = event + ':' + fileName;
+    const key = event + ':' + filePath;
     if (this.index.includes(key)) return;
-    this.queue.push({ event, fileName });
+    this.queue.push({ event, filePath });
     this.index.push(key);
   }
 
@@ -32,7 +32,7 @@ class DirectoryWatcher extends EventEmitter {
     clearTimeout(this.timer);
     this.timer = null;
     for (const item of this.queue) {
-      this.emit(item.event, item.fileName);
+      this.emit(item.event, item.filePath);
     }
     this.queue = [];
     this.index = [];
