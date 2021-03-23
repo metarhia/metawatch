@@ -44,7 +44,7 @@ class DirectoryWatcher extends EventEmitter {
           return;
         }
         if (stats.isDirectory()) this.watch(filePath);
-        this.post(event, filePath);
+        this.post('change', filePath);
       });
     });
     this.watchers.set(targetPath, watcher);
