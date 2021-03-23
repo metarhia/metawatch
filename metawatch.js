@@ -36,9 +36,8 @@ class DirectoryWatcher extends EventEmitter {
   watchDirectory(targetPath) {
     if (this.watchers.get(targetPath)) return;
     const watcher = fs.watch(targetPath, (event, fileName) => {
-      const filePath = path.join(targetPath, fileName);
-      const dupName = path.sep + fileName + path.sep + fileName;
-      if (filePath.endsWith(dupName)) return;
+      const target = targetPath.endsWith(path.sep + fileName);
+      const filePath = target ? targetPath : path.join(targetPath, fileName);
       fs.stat(filePath, (err, stats) => {
         if (err) {
           this.post('delete', filePath);
