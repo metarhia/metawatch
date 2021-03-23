@@ -12,8 +12,7 @@ class DirectoryWatcher extends EventEmitter {
     this.watchers = new Map();
     this.timeout = options.timeout || WATCH_TIMEOUT;
     this.timer = null;
-    this.queue = [];
-    this.index = [];
+    this.queue = new Map();
   }
 
   post(event, filePath) {
@@ -21,21 +20,17 @@ class DirectoryWatcher extends EventEmitter {
     this.timer = setTimeout(() => {
       this.sendQueue();
     }, this.timeout);
-    const key = event + ':' + filePath;
-    if (this.index.includes(key)) return;
-    this.queue.push({ event, filePath });
-    this.index.push(key);
+    this.queue.set(filePath, event);
   }
 
   sendQueue() {
     if (!this.timer) return;
     clearTimeout(this.timer);
     this.timer = null;
-    for (const item of this.queue) {
-      this.emit(item.event, item.filePath);
+    for (const [filePath, event] of this.queue) {
+      this.emit(event, filePath);
     }
-    this.queue = [];
-    this.index = [];
+    this.queue.clear();
   }
 
   watchDirectory(targetPath) {

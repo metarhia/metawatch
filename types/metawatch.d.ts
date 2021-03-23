@@ -5,8 +5,7 @@ export class DirectoryWatcher extends EventEmitter {
   watchers: Map<string, FSWatcher>;
   timeout: number;
   timer: NodeJS.Timer;
-  queue: Array<string>;
-  index: Array<string>;
+  queue: Map<string, string>;
   constructor(options?: { timeout?: number });
   post(event: string, fileName: string): void;
   sendQueue(): void;
