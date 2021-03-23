@@ -3,6 +3,7 @@
 ## [Unreleased][unreleased]
 
 - Typing .d.ts added
+- Fix access to Map interface
 
 To be released in 1.0.0
 

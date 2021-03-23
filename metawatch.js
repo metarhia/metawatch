@@ -57,7 +57,7 @@ class DirectoryWatcher extends EventEmitter {
   }
 
   watch(targetPath) {
-    const watcher = this.watchers[targetPath];
+    const watcher = this.watchers.get(targetPath);
     if (watcher) return;
     fs.readdir(targetPath, { withFileTypes: true }, (err, files) => {
       if (err) return;
@@ -72,7 +72,7 @@ class DirectoryWatcher extends EventEmitter {
   }
 
   unwatch(path) {
-    const watcher = this.watchers[path];
+    const watcher = this.watchers.get(path);
     if (!watcher) return;
     watcher.close();
     this.watchers.delete(path);
