@@ -2,6 +2,12 @@
 
 ## [Unreleased][unreleased]
 
+## [1.0.2][] - 2021-03-24
+
+- Optimize queue, use Set instead of two arrays
+- Change event names: 'rename' to 'change'
+- Do not ignore events, use deduplication ginstead
+
 ## [1.0.1][] - 2021-03-23
 
 - Fixed bug: access to Map interface
@@ -15,6 +21,7 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.0.1...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/metarhia/metawatch/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/metarhia/metawatch/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/metarhia/metawatch/releases/tag/v1.0.0
