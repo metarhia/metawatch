@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Remove watcher on delete directory
+
 ## [1.0.2][] - 2021-03-24
 
 - Optimize queue, use Set instead of two arrays
