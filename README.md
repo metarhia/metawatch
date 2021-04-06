@@ -10,3 +10,31 @@
 - Watch directories recursive
 - Rebuild recursive when new directories found or old directories remove
 - Deduplicate events with debounce
+
+## Usage
+
+```js
+const metawatch = require('metawatch');
+
+const watcher = new metawatch.DirectoryWatcher({ timeout: 200 });
+watcher.watch('/home/marcus/Downloads');
+watcher.watch('/home/marcus/Documents');
+
+watcher.on('change', (fileName) => {
+  console.log({ changed: fileName });
+});
+
+watcher.on('delete', (fileName) => {
+  console.log({ deleted: fileName });
+});
+```
+
+## Contributors
+
+- Timur Shemsedinov <timur.shemsedinov@gmail.com>
+- See github for full [contributors list](https://github.com/metarhia/metawatch/graphs/contributors)
+
+## License
+
+Copyright (c) 2020-2021 Metarhia contributors.
+Metawatch is [MIT licensed](./LICENSE).
