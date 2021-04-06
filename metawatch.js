@@ -40,6 +40,7 @@ class DirectoryWatcher extends EventEmitter {
       const filePath = target ? targetPath : path.join(targetPath, fileName);
       fs.stat(filePath, (err, stats) => {
         if (err) {
+          this.unwatch(filePath);
           this.post('delete', filePath);
           return;
         }
