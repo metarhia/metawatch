@@ -29,7 +29,7 @@
     "types/"
   ],
   "engines": {
-    "node": "^12.9 || 14 || 15"
+    "node": "^12.9 || 14 || 16"
   },
   "scripts": {
     "test": "npm run lint && npm run types && metatests test/",
