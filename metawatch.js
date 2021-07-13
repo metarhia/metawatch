@@ -10,7 +10,8 @@ class DirectoryWatcher extends EventEmitter {
   constructor(options = {}) {
     super();
     this.watchers = new Map();
-    this.timeout = options.timeout || WATCH_TIMEOUT;
+    const { timeout } = options;
+    this.timeout = typeof timeout === 'number' ? timeout : WATCH_TIMEOUT;
     this.timer = null;
     this.queue = new Map();
   }
