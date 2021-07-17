@@ -34,7 +34,8 @@ watcher.on('delete', (fileName) => {
 - Timur Shemsedinov <timur.shemsedinov@gmail.com>
 - See github for full [contributors list](https://github.com/metarhia/metawatch/graphs/contributors)
 
-## License
+## License & Contributors
 
-Copyright (c) 2020-2021 Metarhia contributors.
+Copyright (c) 2020-2021 [Metarhia contributors](https://github.com/metarhia/metawatch/graphs/contributors).
 Metawatch is [MIT licensed](./LICENSE).
+Metawatch is a part of [Metarhia](https://github.com/metarhia) technology stack.
