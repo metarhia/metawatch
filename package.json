@@ -23,17 +23,17 @@
     "url": "https://www.patreon.com/tshemsedinov"
   },
   "main": "metawatch.js",
-  "types": "types/metawatch.d.ts",
+  "types": "metawatch.d.ts",
   "readmeFilename": "README.md",
   "files": [
-    "types/"
+    "metawatch.d.ts"
   ],
   "engines": {
     "node": "^12.9 || 14 || 16"
   },
   "scripts": {
     "test": "npm run lint && npm run types && metatests test/",
-    "types": "tsc -p types/tsconfig.json",
+    "types": "tsc -p tsconfig.json",
     "lint": "eslint . && prettier -c \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\"",
     "fmt": "prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\""
   },
