@@ -3,6 +3,7 @@
 ## [Unreleased][unreleased]
 
 - Fix zero timeout
+- Move types to package root
 
 ## [1.0.3][] - 2021-04-07
 
