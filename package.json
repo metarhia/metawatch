@@ -38,9 +38,9 @@
     "fmt": "prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\""
   },
   "devDependencies": {
-    "@types/node": "^17.0.21",
+    "@types/node": "^18.0.0",
     "eslint": "^8.11.0",
-    "eslint-config-metarhia": "^7.0.1",
+    "eslint-config-metarhia": "^8.1.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
