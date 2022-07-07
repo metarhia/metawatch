@@ -1,6 +1,6 @@
 {
   "name": "metawatch",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
   "description": "Deep nested directories watch for node.js",
   "license": "MIT",
@@ -38,8 +38,8 @@
     "fmt": "prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/.*rc\" \"**/*.yml\" \"**/*.ts\""
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "eslint": "^8.11.0",
+    "@types/node": "^18.0.3",
+    "eslint": "^8.19.0",
     "eslint-config-metarhia": "^8.1.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.25.4",
