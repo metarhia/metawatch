@@ -2,6 +2,10 @@
 
 ## [Unreleased][unreleased]
 
+## [1.0.7][] - 2022-11-17
+
+- Package maintenance
+
 ## [1.0.6][] - 2022-07-07
 
 - Package maintenance
@@ -39,7 +43,8 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.0.6...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v1.0.7...HEAD
+[1.0.7]: https://github.com/metarhia/metawatch/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/metarhia/metawatch/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/metarhia/metawatch/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/metarhia/metawatch/compare/v1.0.3...v1.0.4
