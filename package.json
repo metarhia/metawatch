@@ -4,11 +4,7 @@
   "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
   "description": "Deep nested directories watch for node.js",
   "license": "MIT",
-  "keywords": [
-    "fs",
-    "watch",
-    "metarhia"
-  ],
+  "keywords": ["fs", "watch", "metarhia"],
   "repository": {
     "type": "git",
     "url": "https://github.com/metarhia/metawatch"
@@ -25,11 +21,9 @@
   "main": "metawatch.js",
   "types": "metawatch.d.ts",
   "readmeFilename": "README.md",
-  "files": [
-    "metawatch.d.ts"
-  ],
+  "files": ["metawatch.d.ts"],
   "engines": {
-    "node": "14 || 16 || 18 || 19"
+    "node": "^14.18 || 16 || 18 || 19"
   },
   "scripts": {
     "test": "npm run lint && npm run types && metatests test/",
