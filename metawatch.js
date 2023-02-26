@@ -1,8 +1,8 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const { EventEmitter } = require('events');
+const fs = require('node:fs');
+const path = require('node:path');
+const { EventEmitter } = require('node:events');
 
 const WATCH_TIMEOUT = 5000;
 

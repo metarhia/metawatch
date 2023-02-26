@@ -1,5 +1,5 @@
-import { EventEmitter } from 'events';
-import { FSWatcher } from 'fs';
+import { EventEmitter } from 'node:events';
+import { FSWatcher } from 'node:fs';
 
 export class DirectoryWatcher extends EventEmitter {
   watchers: Map<string, FSWatcher>;
