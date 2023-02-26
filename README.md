@@ -36,6 +36,6 @@ watcher.on('delete', (fileName) => {
 
 ## License & Contributors
 
-Copyright (c) 2020-2022 [Metarhia contributors](https://github.com/metarhia/metawatch/graphs/contributors).
+Copyright (c) 2020-2023 [Metarhia contributors](https://github.com/metarhia/metawatch/graphs/contributors).
 Metawatch is [MIT licensed](./LICENSE).
 Metawatch is a part of [Metarhia](https://github.com/metarhia) technology stack.
