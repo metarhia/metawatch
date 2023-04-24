@@ -23,7 +23,7 @@
   "readmeFilename": "README.md",
   "files": ["metawatch.d.ts"],
   "engines": {
-    "node": "^14.18 || 16 || 18 || 19"
+    "node": "16 || 18 || 19 || 20"
   },
   "scripts": {
     "test": "npm run lint && npm run types && metatests test/",
