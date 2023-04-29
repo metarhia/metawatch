@@ -1,6 +1,6 @@
 {
   "name": "metawatch",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
   "description": "Deep nested directories watch for node.js",
   "license": "MIT",
@@ -44,7 +44,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
-    "metatests": "^0.7.2",
+    "metatests": "^0.8.2",
     "prettier": "^2.6.0",
     "typescript": "^5.0.4"
   }

@@ -2,6 +2,12 @@
 
 ## [Unreleased][unreleased]
 
+## [1.0.8][] - 2023-03-29
+
+- Drop node.js 14 support, add node.js 20
+- Convert package_lock.json to lockfileVersion 2
+- Update dependencies
+
 ## [1.0.7][] - 2022-11-17
 
 - Package maintenance
@@ -43,7 +49,8 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.0.7...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v1.0.8...HEAD
+[1.0.8]: https://github.com/metarhia/metawatch/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/metarhia/metawatch/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/metarhia/metawatch/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/metarhia/metawatch/compare/v1.0.4...v1.0.5
