@@ -29,9 +29,11 @@ class DirectoryWatcher extends EventEmitter {
     this.timer = null;
     const queue = [...this.queue.entries()];
     this.queue.clear();
+    this.emit('before', queue);
     for (const [filePath, event] of queue) {
       this.emit(event, filePath);
     }
+    this.emit('after', queue);
   }
 
   watchDirectory(targetPath) {
