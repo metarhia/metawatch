@@ -10,8 +10,7 @@ class DirectoryWatcher extends EventEmitter {
   constructor(options = {}) {
     super();
     this.watchers = new Map();
-    const { timeout } = options;
-    this.timeout = typeof timeout === 'number' ? timeout : WATCH_TIMEOUT;
+    this.timeout = options.timeout || WATCH_TIMEOUT;
     this.timer = null;
     this.queue = new Map();
   }
@@ -28,10 +27,11 @@ class DirectoryWatcher extends EventEmitter {
     if (!this.timer) return;
     clearTimeout(this.timer);
     this.timer = null;
-    for (const [filePath, event] of this.queue) {
+    const queue = [...this.queue.entries()];
+    this.queue.clear();
+    for (const [filePath, event] of queue) {
       this.emit(event, filePath);
     }
-    this.queue.clear();
   }
 
   watchDirectory(targetPath) {
