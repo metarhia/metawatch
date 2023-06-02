@@ -8,29 +8,28 @@ const metatests = require('metatests');
 
 const OPTIONS = { timeout: 200 };
 const WRITE_TIMEOUT = 100;
-const EXIT_TIMEOUT = 500;
 const TEST_TIMEOUT = 2000;
 
 const dir = process.cwd();
 
 const targetPath = path.join(dir, 'test/example');
 
-metatests.test('Watch file change ', (test) => {
+metatests.test('Single file change ', (test) => {
   test.strictSame(typeof metawatch, 'object');
-
-  const timeout = setTimeout(() => {
-    test.fail();
-  }, TEST_TIMEOUT);
 
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
   watcher.watch(targetPath);
+
+  const timeout = setTimeout(() => {
+    watcher.unwatch(targetPath);
+    test.fail();
+  }, TEST_TIMEOUT);
+
   watcher.on('change', (fileName) => {
     test.strictSame(fileName.endsWith('file.ext'), true);
     clearTimeout(timeout);
+    watcher.unwatch(targetPath);
     test.end();
-    setTimeout(() => {
-      process.exit(0);
-    }, EXIT_TIMEOUT);
   });
 
   setTimeout(() => {
