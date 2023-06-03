@@ -27,6 +27,14 @@ watcher.on('change', (fileName) => {
 watcher.on('delete', (fileName) => {
   console.log({ deleted: fileName });
 });
+
+watcher.on('before', (changes) => {
+  console.log({ changes });
+});
+
+watcher.on('after', (changes) => {
+  console.log({ changes });
+});
 ```
 
 ## Contributors
