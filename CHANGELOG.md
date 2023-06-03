@@ -2,6 +2,12 @@
 
 ## [Unreleased][unreleased]
 
+## [1.1.0][] - 2023-06-03
+
+- Add events `before` and `after` receiving `changes[]`
+- Clone queue iteration to avoid infinite loop
+- Improve tests
+
 ## [1.0.8][] - 2023-03-29
 
 - Drop node.js 14 support, add node.js 20
@@ -49,7 +55,8 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.0.8...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/metarhia/metawatch/compare/v1.0.8...v1.1.0
 [1.0.8]: https://github.com/metarhia/metawatch/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/metarhia/metawatch/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/metarhia/metawatch/compare/v1.0.5...v1.0.6
