@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+## [1.1.1][] - 2023-06-04
+
 - Fix options.timeout and don't use setTimeout for zero
 
 ## [1.1.0][] - 2023-06-03
@@ -57,7 +59,8 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/metarhia/metawatch/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/metarhia/metawatch/compare/v1.0.8...v1.1.0
 [1.0.8]: https://github.com/metarhia/metawatch/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/metarhia/metawatch/compare/v1.0.6...v1.0.7
