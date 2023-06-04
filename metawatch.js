@@ -10,23 +10,30 @@ class DirectoryWatcher extends EventEmitter {
   constructor(options = {}) {
     super();
     this.watchers = new Map();
-    this.timeout = options.timeout || WATCH_TIMEOUT;
+    const { timeout = WATCH_TIMEOUT } = options;
+    this.timeout = timeout;
     this.timer = null;
     this.queue = new Map();
   }
 
   post(event, filePath) {
     if (this.timer) clearTimeout(this.timer);
+    this.queue.set(filePath, event);
+    if (this.timeout === 0) {
+      this.sendQueue();
+      return;
+    }
     this.timer = setTimeout(() => {
+      if (this.timer) {
+        clearTimeout(this.timer);
+        this.timer = null;
+      }
       this.sendQueue();
     }, this.timeout);
-    this.queue.set(filePath, event);
   }
 
   sendQueue() {
-    if (!this.timer) return;
-    clearTimeout(this.timer);
-    this.timer = null;
+    if (this.queue.size === 0) return;
     const queue = [...this.queue.entries()];
     this.queue.clear();
     this.emit('before', queue);
