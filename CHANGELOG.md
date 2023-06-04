@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Fix options.timeout and don't use setTimeout for zero
+
 ## [1.1.0][] - 2023-06-03
 
 - Add events `before` and `after` receiving `changes[]`
