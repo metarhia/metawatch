@@ -19,10 +19,7 @@ class DirectoryWatcher extends EventEmitter {
   post(event, filePath) {
     if (this.timer) clearTimeout(this.timer);
     this.queue.set(filePath, event);
-    if (this.timeout === 0) {
-      this.sendQueue();
-      return;
-    }
+    if (this.timeout === 0) return void this.sendQueue();
     this.timer = setTimeout(() => {
       if (this.timer) {
         clearTimeout(this.timer);
@@ -51,8 +48,7 @@ class DirectoryWatcher extends EventEmitter {
       fs.stat(filePath, (err, stats) => {
         if (err) {
           this.unwatch(filePath);
-          this.post('delete', filePath);
-          return;
+          return void this.post('delete', filePath);
         }
         if (stats.isDirectory()) this.watch(filePath);
         this.post('change', filePath);
