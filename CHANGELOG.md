@@ -2,6 +2,11 @@
 
 ## [Unreleased][unreleased]
 
+## [1.2.0][] - 2023-10-27
+
+- Update dependencies and package maintenance
+- Drop node 16 and 19 support, add node 21
+
 ## [1.1.1][] - 2023-06-04
 
 - Fix options.timeout and don't use setTimeout for zero
@@ -59,7 +64,8 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.1.1...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/metarhia/metawatch/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/metarhia/metawatch/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/metarhia/metawatch/compare/v1.0.8...v1.1.0
 [1.0.8]: https://github.com/metarhia/metawatch/compare/v1.0.7...v1.0.8
