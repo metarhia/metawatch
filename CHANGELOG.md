@@ -2,6 +2,11 @@
 
 ## [Unreleased][unreleased]
 
+## [1.2.3][] - 2025-05-21
+
+- Add node.js 24 to CI
+- Update dependencies
+
 ## [1.2.2][] - 2024-08-30
 
 - Update eslint to 9.x and prettier with configs
@@ -73,7 +78,9 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.2.1...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v1.2.3...HEAD
+[1.2.3]: https://github.com/metarhia/metawatch/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/metarhia/metawatch/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/metarhia/metawatch/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/metarhia/metawatch/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/metarhia/metawatch/compare/v1.1.0...v1.1.1
