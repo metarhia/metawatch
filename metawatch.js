@@ -51,7 +51,7 @@ class DirectoryWatcher extends EventEmitter {
           return void this.post('delete', filePath);
         }
         if (stats.isDirectory()) this.watch(filePath);
-        this.post('change', filePath);
+        if (filePath !== targetPath) this.post('change', filePath);
       });
     });
     this.watchers.set(targetPath, watcher);
