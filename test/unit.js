@@ -37,6 +37,7 @@ metatests.test('Single file change ', (test) => {
     clearTimeout(timeout);
     watcher.unwatch(targetPath);
     cleanup(targetPath);
+    watcher.removeAllListeners();
     test.end();
   });
 
@@ -79,6 +80,7 @@ metatests.test('Aggregated change', (test) => {
     clearTimeout(timeout);
     watcher.unwatch(targetPath);
     cleanup(targetPath);
+    watcher.removeAllListeners();
     test.end();
   });
 
