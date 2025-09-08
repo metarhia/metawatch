@@ -29,7 +29,7 @@
     "metawatch.d.ts"
   ],
   "engines": {
-    "node": "18 || 20 || 21 || 22 || 23 || 24"
+    "node": ">=18"
   },
   "scripts": {
     "test": "npm run lint && npm run types && node --test",
