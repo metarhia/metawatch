@@ -1,6 +1,6 @@
 {
   "name": "metawatch",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
   "description": "Deep nested directories watch for node.js",
   "license": "MIT",
