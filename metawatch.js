@@ -10,10 +10,22 @@ class DirectoryWatcher extends EventEmitter {
   constructor(options = {}) {
     super();
     this.watchers = new Map();
+    this.pendingWatches = new Set();
     const { timeout = WATCH_TIMEOUT } = options;
     this.timeout = timeout;
     this.timer = null;
     this.queue = new Map();
+  }
+
+  close() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+    for (const watcher of this.watchers.values()) watcher.close();
+    this.watchers.clear();
+    this.pendingWatches.clear();
+    this.queue.clear();
   }
 
   post(event, filePath) {
@@ -45,23 +57,30 @@ class DirectoryWatcher extends EventEmitter {
     const watcher = fs.watch(targetPath, (event, fileName) => {
       const target = targetPath.endsWith(path.sep + fileName);
       const filePath = target ? targetPath : path.join(targetPath, fileName);
-      fs.stat(filePath, (err, stats) => {
-        if (err) {
-          this.unwatch(filePath);
-          return void this.post('delete', filePath);
+      fs.stat(filePath, (error, stats) => {
+        if (error) {
+          if (error.code === 'ENOENT') {
+            this.unwatchInternal(filePath);
+            return void this.post('delete', filePath);
+          }
+          return void this.emit('error', error);
         }
         if (stats.isDirectory()) this.watch(filePath);
         if (filePath !== targetPath) this.post('change', filePath);
       });
     });
+    watcher.on('error', (error) => this.emit('error', error));
     this.watchers.set(targetPath, watcher);
   }
 
   watch(targetPath) {
     const watcher = this.watchers.get(targetPath);
     if (watcher) return;
-    fs.readdir(targetPath, { withFileTypes: true }, (err, files) => {
-      if (err) return;
+    if (this.pendingWatches.has(targetPath)) return;
+    this.pendingWatches.add(targetPath);
+    fs.readdir(targetPath, { withFileTypes: true }, (error, files) => {
+      this.pendingWatches.delete(targetPath);
+      if (error) return void this.emit('error', error);
       for (const file of files) {
         if (file.isDirectory()) {
           const dirPath = path.join(targetPath, file.name);
@@ -72,11 +91,15 @@ class DirectoryWatcher extends EventEmitter {
     });
   }
 
-  unwatch(path) {
-    const watcher = this.watchers.get(path);
+  unwatchInternal(targetPath) {
+    const watcher = this.watchers.get(targetPath);
     if (!watcher) return;
     watcher.close();
-    this.watchers.delete(path);
+    this.watchers.delete(targetPath);
+  }
+
+  unwatch(targetPath) {
+    this.unwatchInternal(targetPath);
   }
 }
 

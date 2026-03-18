@@ -13,11 +13,13 @@ const TEST_TIMEOUT = 2000;
 
 const dir = process.cwd();
 
-const cleanup = (dir) => {
-  fs.rm(dir, { recursive: true, force: true }, (error) => {
-    if (error) throw error;
+const cleanup = (pathToRemove) =>
+  new Promise((resolve, reject) => {
+    fs.rm(pathToRemove, { recursive: true, force: true }, (error) => {
+      if (error) reject(error);
+      else resolve();
+    });
   });
-};
 
 test('Single file change', async () => {
   const targetPath = path.join(dir, 'test/example1');
@@ -30,21 +32,22 @@ test('Single file change', async () => {
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-      watcher.watchers.forEach((w) => w.close());
-      watcher.watchers.clear();
-      watcher.removeAllListeners();
-      cleanup(targetPath);
-      reject(new Error('Test timeout'));
+      watcher.close();
+      cleanup(targetPath)
+        .then(() => reject(new Error('Test timeout')))
+        .catch(reject);
     }, TEST_TIMEOUT);
 
-    watcher.on('change', (fileName) => {
+    watcher.on('change', async (fileName) => {
       assert.strictEqual(fileName.endsWith('file.ext'), true);
       clearTimeout(timeout);
-      watcher.watchers.forEach((w) => w.close());
-      watcher.watchers.clear();
-      watcher.removeAllListeners();
-      cleanup(targetPath);
-      resolve();
+      watcher.close();
+      try {
+        await cleanup(targetPath);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
     });
 
     setTimeout(() => {
@@ -52,11 +55,10 @@ test('Single file change', async () => {
       fs.writeFile(filePath, 'example', 'utf8', (err) => {
         if (err) {
           clearTimeout(timeout);
-          watcher.watchers.forEach((w) => w.close());
-          watcher.watchers.clear();
-          watcher.removeAllListeners();
-          cleanup(targetPath);
-          reject(err);
+          watcher.close();
+          cleanup(targetPath)
+            .then(() => reject(err))
+            .catch(reject);
         }
       });
     }, WRITE_TIMEOUT);
@@ -74,11 +76,10 @@ test('Aggregated change', async () => {
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-      watcher.watchers.forEach((w) => w.close());
-      watcher.watchers.clear();
-      watcher.removeAllListeners();
-      cleanup(targetPath);
-      reject(new Error('Test timeout'));
+      watcher.close();
+      cleanup(targetPath)
+        .then(() => reject(new Error('Test timeout')))
+        .catch(reject);
     }, TEST_TIMEOUT);
 
     let changeCount = 0;
@@ -92,15 +93,17 @@ test('Aggregated change', async () => {
       assert.strictEqual(changes.length, 3);
     });
 
-    watcher.on('after', (changes) => {
+    watcher.on('after', async (changes) => {
       assert.strictEqual(changeCount, 3);
       assert.strictEqual(changes.length, 3);
       clearTimeout(timeout);
-      watcher.watchers.forEach((w) => w.close());
-      watcher.watchers.clear();
-      watcher.removeAllListeners();
-      cleanup(targetPath);
-      resolve();
+      watcher.close();
+      try {
+        await cleanup(targetPath);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
     });
 
     setTimeout(() => {
@@ -109,11 +112,10 @@ test('Aggregated change', async () => {
         fs.writeFile(filePath, 'example', 'utf8', (err) => {
           if (err) {
             clearTimeout(timeout);
-            watcher.watchers.forEach((w) => w.close());
-            watcher.watchers.clear();
-            watcher.removeAllListeners();
-            cleanup(targetPath);
-            reject(err);
+            watcher.close();
+            cleanup(targetPath)
+              .then(() => reject(err))
+              .catch(reject);
           }
         });
       }
@@ -126,7 +128,6 @@ test('File deletion detection', async () => {
   fs.mkdirSync(targetPath);
   const filePath = path.join(targetPath, 'delete-me.txt');
 
-  // Create file first
   fs.writeFileSync(filePath, 'content');
 
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
@@ -134,21 +135,22 @@ test('File deletion detection', async () => {
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-      watcher.watchers.forEach((w) => w.close());
-      watcher.watchers.clear();
-      watcher.removeAllListeners();
-      cleanup(targetPath);
-      reject(new Error('Test timeout'));
+      watcher.close();
+      cleanup(targetPath)
+        .then(() => reject(new Error('Test timeout')))
+        .catch(reject);
     }, TEST_TIMEOUT);
 
-    watcher.on('delete', (fileName) => {
+    watcher.on('delete', async (fileName) => {
       assert.strictEqual(fileName, filePath);
       clearTimeout(timeout);
-      watcher.watchers.forEach((w) => w.close());
-      watcher.watchers.clear();
-      watcher.removeAllListeners();
-      cleanup(targetPath);
-      resolve();
+      watcher.close();
+      try {
+        await cleanup(targetPath);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
     });
 
     setTimeout(() => {
@@ -167,44 +169,39 @@ test('Nested directory watching', async () => {
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-      // Clean up all watchers
-      watcher.watchers.forEach((w) => w.close());
-      watcher.watchers.clear();
-      watcher.removeAllListeners();
-      cleanup(targetPath);
-      reject(new Error('Test timeout'));
+      watcher.close();
+      cleanup(targetPath)
+        .then(() => reject(new Error('Test timeout')))
+        .catch(reject);
     }, TEST_TIMEOUT);
 
-    watcher.on('change', (fileName) => {
-      // We might get directory events first, so wait for file event
+    watcher.on('change', async (fileName) => {
       if (fileName.endsWith('nested-file.txt')) {
         const expectedFile = path.join(nestedPath, 'nested-file.txt');
         assert.strictEqual(fileName, expectedFile);
         clearTimeout(timeout);
-        // Clean up all watchers
-        watcher.watchers.forEach((w) => w.close());
-        watcher.watchers.clear();
-        watcher.removeAllListeners();
-        cleanup(targetPath);
-        resolve();
+        watcher.close();
+        try {
+          await cleanup(targetPath);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
       }
     });
 
-    // First create the nested directory, then create the file
     setTimeout(() => {
       fs.mkdirSync(nestedPath);
 
-      // Wait a bit for the directory to be processed, then create the file
       setTimeout(() => {
         const filePath = path.join(nestedPath, 'nested-file.txt');
         fs.writeFile(filePath, 'content', 'utf8', (err) => {
           if (err) {
             clearTimeout(timeout);
-            watcher.watchers.forEach((w) => w.close());
-            watcher.watchers.clear();
-            watcher.removeAllListeners();
-            cleanup(targetPath);
-            reject(err);
+            watcher.close();
+            cleanup(targetPath)
+              .then(() => reject(err))
+              .catch(reject);
           }
         });
       }, 50);
@@ -217,6 +214,7 @@ test('Constructor with default options', () => {
   assert.strictEqual(watcher.timeout, 5000);
   assert.strictEqual(watcher.timer, null);
   assert.strictEqual(watcher.watchers.size, 0);
+  assert.strictEqual(watcher.pendingWatches.size, 0);
   assert.strictEqual(watcher.queue.size, 0);
 });
 
@@ -233,15 +231,28 @@ test('Constructor with zero timeout', () => {
 
 test('Unwatch non-existent directory', () => {
   const watcher = new metawatch.DirectoryWatcher();
-  // Should not throw error
   watcher.unwatch('/non/existent/path');
   assert.strictEqual(watcher.watchers.size, 0);
+});
+
+test('close() stops all watchers', async () => {
+  const targetPath = path.join(dir, 'test/example7');
+  fs.mkdirSync(targetPath);
+
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
+  watcher.watch(targetPath);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  assert.ok(watcher.watchers.size > 0);
+  watcher.close();
+  assert.strictEqual(watcher.watchers.size, 0);
+  assert.strictEqual(watcher.timer, null);
+  await cleanup(targetPath);
 });
 
 test('Watch same directory twice', async () => {
   const targetPath = path.join(dir, 'test/example5');
 
-  // Clean up if exists
   if (fs.existsSync(targetPath)) {
     fs.rmSync(targetPath, { recursive: true, force: true });
   }
@@ -251,25 +262,19 @@ test('Watch same directory twice', async () => {
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
 
   try {
-    // Watch first time
     watcher.watch(targetPath);
 
-    // Wait a bit for the watcher to be created
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     const firstWatcher = watcher.watchers.get(targetPath);
     assert.ok(firstWatcher);
 
-    // Watch second time - should not create new watcher
     watcher.watch(targetPath);
     const secondWatcher = watcher.watchers.get(targetPath);
     assert.strictEqual(firstWatcher, secondWatcher);
   } finally {
-    // Always clean up watchers
-    watcher.watchers.forEach((w) => w.close());
-    watcher.watchers.clear();
-    watcher.removeAllListeners();
-    cleanup(targetPath);
+    watcher.close();
+    await cleanup(targetPath);
   }
 });
 
@@ -282,28 +287,28 @@ test('Immediate timeout (timeout: 0)', async () => {
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-      watcher.watchers.forEach((w) => w.close());
-      watcher.watchers.clear();
-      watcher.removeAllListeners();
-      cleanup(targetPath);
-      reject(new Error('Test timeout'));
+      watcher.close();
+      cleanup(targetPath)
+        .then(() => reject(new Error('Test timeout')))
+        .catch(reject);
     }, TEST_TIMEOUT);
 
     let eventCount = 0;
 
-    watcher.on('change', () => {
+    watcher.on('change', async () => {
       eventCount++;
       if (eventCount === 2) {
         clearTimeout(timeout);
-        watcher.watchers.forEach((w) => w.close());
-        watcher.watchers.clear();
-        watcher.removeAllListeners();
-        cleanup(targetPath);
-        resolve();
+        watcher.close();
+        try {
+          await cleanup(targetPath);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
       }
     });
 
-    // Create two files quickly
     setTimeout(() => {
       const file1 = path.join(targetPath, 'file1.txt');
       const file2 = path.join(targetPath, 'file2.txt');

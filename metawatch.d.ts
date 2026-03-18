@@ -7,14 +7,16 @@ export interface DirectoryWatcherOptions {
 
 export class DirectoryWatcher extends EventEmitter {
   watchers: Map<string, FSWatcher>;
+  pendingWatches: Set<string>;
   timeout: number;
   timer: NodeJS.Timeout;
   queue: Map<string, string>;
 
   constructor(options?: DirectoryWatcherOptions);
+  close(): void;
   post(event: string, filePath: string): void;
   sendQueue(): void;
   watchDirectory(targetPath: string): void;
   watch(targetPath: string): void;
-  unwatch(path: string): void;
+  unwatch(targetPath: string): void;
 }

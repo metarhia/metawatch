@@ -57,6 +57,7 @@ new DirectoryWatcher(options);
 
 - `watch(targetPath)` - Start watching directory recursively
 - `unwatch(path)` - Stop watching directory
+- `close()` - Stop all watchers, clear timers and internal state
 
 **Events:**
 
