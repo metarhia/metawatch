@@ -2,6 +2,14 @@
 
 ## [Unreleased][unreleased]
 
+## [1.2.5][] - 2025-03-18
+
+- Applied js-conventions code style (naming, error handling)
+- Fix: no path shadowing
+- Added metaskills dev dependency
+- Updated dependencies
+- Added node 25 to CI matrix
+
 ## [1.2.4][] - 2025-09-13
 
 - Add more unit tests
@@ -87,7 +95,8 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.2.4...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v1.2.5...HEAD
+[1.2.5]: https://github.com/metarhia/metawatch/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/metarhia/metawatch/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/metarhia/metawatch/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/metarhia/metawatch/compare/v1.2.1...v1.2.2
