@@ -2,6 +2,15 @@
 
 ## [Unreleased][unreleased]
 
+## [2.0.0][] - 2025-03-20
+
+- Removed `post`, `sendQueue`, `watchDirectory` from public API (now private)
+- Removed `timeout` getter; configuring via constructor options only
+- Removed internal fields exposure (`watchers`, `pendingWatches`, `queue`, `timer`)
+- Consolidated loading state into `#watchers` (null placeholder)
+- Race condition: `close()` during pending `readdir` no longer leaks watchers
+- Added `#closed` guard to prevent watchers from being added after close
+
 ## [1.2.5][] - 2025-03-18
 
 - Applied js-conventions code style (naming, error handling)
@@ -95,7 +104,8 @@
 - New 'delete' event ('rename' event if ENOENT)
 - Prevent duplicate path concatination
 
-[unreleased]: https://github.com/metarhia/metawatch/compare/v1.2.5...HEAD
+[unreleased]: https://github.com/metarhia/metawatch/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/metarhia/metawatch/compare/v1.2.5...v2.0.0
 [1.2.5]: https://github.com/metarhia/metawatch/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/metarhia/metawatch/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/metarhia/metawatch/compare/v1.2.2...v1.2.3

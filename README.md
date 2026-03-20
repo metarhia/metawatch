@@ -7,7 +7,7 @@
 [![npm downloads](https://img.shields.io/npm/dt/metawatch.svg)](https://www.npmjs.com/package/metawatch)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/metarhia/metawatch/blob/master/LICENSE)
 
-Node.js library for watching deep nested directories with intelligent event deduplication and debouncing.
+Recursive file and directory watcher for Node.js with debouncing, event deduplication, and zero dependencies.
 
 ## Features
 
@@ -19,6 +19,8 @@ Node.js library for watching deep nested directories with intelligent event dedu
 - 🎭 **EventEmitter API**: simple event-driven interface
 
 ## Installation
+
+Requires Node.js 18 or later.
 
 ```bash
 npm i metawatch
@@ -61,9 +63,9 @@ new DirectoryWatcher(options);
 
 **Events:**
 
-- `change` - File created/modified (`fileName`)
-- `delete` - File deleted (`fileName`)
-- `before` - Before processing batch (`changes`)
+- `change` - File created/modified (`filePath`)
+- `delete` - File deleted (`filePath`)
+- `before` - Before processing batch (`changes` array of `[filePath, eventName]` tuples)
 - `after` - After processing batch (`changes`)
 
 ## Examples
@@ -92,7 +94,7 @@ watcher.on('delete', (fileName) => {
 
 ```js
 const metawatch = require('metawatch');
-const fs = require('fs');
+const fs = require('node:fs');
 
 const watcher = new metawatch.DirectoryWatcher({ timeout: 1000 });
 const backupQueue = new Set();
@@ -122,8 +124,9 @@ watcher.on('after', (changes) => {
 ### Multiple Directory Monitoring
 
 ```js
+const fs = require('node:fs');
+const path = require('node:path');
 const metawatch = require('metawatch');
-const path = require('path');
 
 const watcher = new metawatch.DirectoryWatcher({ timeout: 200 });
 
@@ -190,11 +193,10 @@ try {
 
 ## Contributors
 
-- Timur Shemsedinov <timur.shemsedinov@gmail.com>
-- See github for full [contributors list](https://github.com/metarhia/metawatch/graphs/contributors)
+See [AUTHORS](./AUTHORS) and [contributors on GitHub](https://github.com/metarhia/metawatch/graphs/contributors).
 
 ## License & Contributors
 
-Copyright (c) 2020-2025 [Metarhia contributors](https://github.com/metarhia/metawatch/graphs/contributors).
+Copyright (c) 2020-2026 [Metarhia contributors](https://github.com/metarhia/metawatch/graphs/contributors).
 Metawatch is [MIT licensed](./LICENSE).
 Metawatch is a part of [Metarhia](https://github.com/metarhia) technology stack.
