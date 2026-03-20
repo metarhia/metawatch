@@ -28,9 +28,9 @@ class DirectoryWatcher extends EventEmitter {
     this.queue.clear();
   }
 
-  post(event, filePath) {
+  post(eventName, filePath) {
     if (this.timer) clearTimeout(this.timer);
-    this.queue.set(filePath, event);
+    this.queue.set(filePath, eventName);
     if (this.timeout === 0) return void this.sendQueue();
     this.timer = setTimeout(() => {
       if (this.timer) {
