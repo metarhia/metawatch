@@ -60,7 +60,7 @@ class DirectoryWatcher extends EventEmitter {
       fs.stat(filePath, (error, stats) => {
         if (error) {
           if (error.code === 'ENOENT') {
-            this.unwatchInternal(filePath);
+            this.unwatch(filePath);
             return void this.post('delete', filePath);
           }
           return void this.emit('error', error);
@@ -91,15 +91,11 @@ class DirectoryWatcher extends EventEmitter {
     });
   }
 
-  unwatchInternal(targetPath) {
+  unwatch(targetPath) {
     const watcher = this.watchers.get(targetPath);
     if (!watcher) return;
     watcher.close();
     this.watchers.delete(targetPath);
-  }
-
-  unwatch(targetPath) {
-    this.unwatchInternal(targetPath);
   }
 }
 
