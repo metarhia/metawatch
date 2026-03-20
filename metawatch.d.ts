@@ -14,7 +14,7 @@ export class DirectoryWatcher extends EventEmitter {
 
   constructor(options?: DirectoryWatcherOptions);
   close(): void;
-  post(event: string, filePath: string): void;
+  post(eventName: string, filePath: string): void;
   sendQueue(): void;
   watchDirectory(targetPath: string): void;
   watch(targetPath: string): void;
