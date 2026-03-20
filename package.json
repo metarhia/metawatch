@@ -1,23 +1,36 @@
 {
   "name": "metawatch",
-  "version": "1.2.5",
+  "version": "2.0.0",
   "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
-  "description": "Deep nested directories watch for node.js",
+  "description": "Recursive file and directory watcher for Node.js with debouncing, event deduplication, and zero dependencies.",
   "license": "MIT",
   "keywords": [
     "fs",
     "watch",
+    "file-watcher",
+    "directory-watcher",
+    "recursive",
+    "filesystem",
+    "inotify",
+    "debounce",
     "metarhia"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/metarhia/metawatch.git"
   },
+  "exports": {
+    ".": {
+      "types": "./metawatch.d.ts",
+      "require": "./metawatch.js",
+      "default": "./metawatch.js"
+    }
+  },
   "bugs": {
     "url": "https://github.com/metarhia/metawatch/issues",
     "email": "timur.shemsedinov@gmail.com"
   },
-  "homepage": "https://metarhia.com",
+  "homepage": "https://github.com/metarhia/metawatch#readme",
   "funding": {
     "type": "patreon",
     "url": "https://www.patreon.com/tshemsedinov"
@@ -42,7 +55,7 @@
     "eslint": "^9.39.4",
     "eslint-config-metarhia": "^9.1.8",
     "metaskills": "^1.0.4",
-    "prettier": "^3.6.2",
+    "prettier": "^3.8.1",
     "typescript": "^5.9.3"
   }
 }
