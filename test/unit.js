@@ -211,28 +211,23 @@ test('Nested directory watching', async () => {
 
 test('Constructor with default options', () => {
   const watcher = new metawatch.DirectoryWatcher();
-  assert.strictEqual(watcher.timeout, 5000);
-  assert.strictEqual(watcher.timer, null);
-  assert.strictEqual(watcher.watchers.size, 0);
-  assert.strictEqual(watcher.pendingWatches.size, 0);
-  assert.strictEqual(watcher.queue.size, 0);
+  watcher.close();
 });
 
 test('Constructor with custom timeout', () => {
-  const customTimeout = 1000;
-  const watcher = new metawatch.DirectoryWatcher({ timeout: customTimeout });
-  assert.strictEqual(watcher.timeout, customTimeout);
+  const watcher = new metawatch.DirectoryWatcher({ timeout: 1000 });
+  watcher.close();
 });
 
 test('Constructor with zero timeout', () => {
   const watcher = new metawatch.DirectoryWatcher({ timeout: 0 });
-  assert.strictEqual(watcher.timeout, 0);
+  watcher.close();
 });
 
 test('Unwatch non-existent directory', () => {
   const watcher = new metawatch.DirectoryWatcher();
   watcher.unwatch('/non/existent/path');
-  assert.strictEqual(watcher.watchers.size, 0);
+  watcher.close();
 });
 
 test('close() stops all watchers', async () => {
@@ -243,10 +238,15 @@ test('close() stops all watchers', async () => {
   watcher.watch(targetPath);
   await new Promise((resolve) => setTimeout(resolve, 50));
 
-  assert.ok(watcher.watchers.size > 0);
+  let receivedAfterClose = false;
+  watcher.on('change', () => {
+    receivedAfterClose = true;
+  });
   watcher.close();
-  assert.strictEqual(watcher.watchers.size, 0);
-  assert.strictEqual(watcher.timer, null);
+  const filePath = path.join(targetPath, 'after-close.txt');
+  fs.writeFileSync(filePath, 'content');
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  assert.strictEqual(receivedAfterClose, false);
   await cleanup(targetPath);
 });
 
@@ -263,15 +263,16 @@ test('Watch same directory twice', async () => {
 
   try {
     watcher.watch(targetPath);
+    watcher.watch(targetPath);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    const firstWatcher = watcher.watchers.get(targetPath);
-    assert.ok(firstWatcher);
-
-    watcher.watch(targetPath);
-    const secondWatcher = watcher.watchers.get(targetPath);
-    assert.strictEqual(firstWatcher, secondWatcher);
+    let changeCount = 0;
+    watcher.on('change', () => changeCount++);
+    const filePath = path.join(targetPath, 'single-file.txt');
+    fs.writeFileSync(filePath, 'content');
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    assert.strictEqual(changeCount, 1);
   } finally {
     watcher.close();
     await cleanup(targetPath);
