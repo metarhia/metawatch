@@ -60,9 +60,13 @@ class DirectoryWatcher extends EventEmitter {
     const existing = this.#watchers.get(targetPath);
     if (existing) return;
     const watcher = fs.watch(targetPath, (event, fileName) => {
-      const target = targetPath.endsWith(path.sep + fileName);
-      const filePath = target ? targetPath : path.join(targetPath, fileName);
+      if (this.#closed) return;
+      if (!fileName) return;
+      const isSamePath = targetPath.endsWith(`${path.sep}${fileName}`);
+      let filePath = path.join(targetPath, fileName);
+      if (isSamePath) filePath = targetPath;
       fs.stat(filePath, (error, stats) => {
+        if (this.#closed) return;
         if (error) {
           if (error.code === 'ENOENT') {
             this.unwatch(filePath);
@@ -103,7 +107,7 @@ class DirectoryWatcher extends EventEmitter {
     const watcher = this.#watchers.get(targetPath);
     if (!watcher) return;
     this.#watchers.delete(targetPath);
-    if (watcher) watcher.close();
+    watcher.close();
   }
 }
 
