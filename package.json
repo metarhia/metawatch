@@ -51,8 +51,8 @@
     "fix": "eslint . --fix && prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/*.yml\" \"**/*.ts\""
   },
   "devDependencies": {
-    "@types/node": "^25.9.4",
-    "eslint": "^9.39.4",
+    "@types/node": "^25.9.5",
+    "eslint": "^9.39.5",
     "eslint-config-metarhia": "^9.1.9",
     "metaskills": "^1.0.4",
     "prettier": "^3.8.4",
