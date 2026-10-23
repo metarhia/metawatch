@@ -58,27 +58,58 @@ class DirectoryWatcher extends EventEmitter {
     this.emit('after', queue);
   }
 
+  #remove(filePath) {
+    this.unwatch(filePath);
+    this.#post('delete', filePath);
+  }
+
   #watchDirectory(targetPath) {
+    const name = path.basename(targetPath);
     const watcher = fs.watch(targetPath, (event, fileName) => {
-      if (this.#closed) return;
-      if (!fileName) return;
-      const isSamePath = targetPath.endsWith(`${path.sep}${fileName}`);
-      let filePath = path.join(targetPath, fileName);
-      if (isSamePath) filePath = targetPath;
+      // fileName is not guaranteed; report targetPath itself without it
+      const filePath = fileName ? path.join(targetPath, fileName) : targetPath;
       fs.stat(filePath, (error, stats) => {
-        if (this.#closed) return;
-        if (error) {
-          if (error.code === 'ENOENT') {
-            this.unwatch(filePath);
-            return void this.#post('delete', filePath);
+        // Drop results after unwatch() or close()
+        if (this.#watchers.get(targetPath) !== watcher) return;
+        if (!error) {
+          if (stats.isDirectory()) {
+            // Directory may be re-created, drop watchers of the old one
+            if (event === 'rename') this.unwatch(filePath);
+            this.watch(filePath);
           }
-          return void this.emit('error', error);
+          return void this.#post('change', filePath);
         }
-        if (stats.isDirectory()) this.watch(filePath);
-        if (filePath !== targetPath) this.#post('change', filePath);
+        if (error.code !== 'ENOENT') return void this.emit('error', error);
+        if (fileName !== name) return void this.#remove(filePath);
+        // Events on targetPath itself are reported under its own basename,
+        // so only a watched (directory) child can be told apart from it
+        fs.stat(targetPath, (error) => {
+          if (this.#watchers.get(targetPath) !== watcher) return;
+          if (!error) {
+            if (this.#watchers.has(filePath)) this.#remove(filePath);
+            return;
+          }
+          if (error.code !== 'ENOENT') return void this.emit('error', error);
+          this.#remove(targetPath);
+        });
       });
     });
-    watcher.on('error', (error) => this.emit('error', error));
+    watcher.on('error', (error) => {
+      // Windows reports removal of a watched directory as EPERM
+      if (error.code !== 'EPERM') return void this.emit('error', error);
+      if (this.#watchers.get(targetPath) !== watcher) return;
+      this.unwatch(targetPath);
+      fs.stat(targetPath, (error, stats) => {
+        if (this.#closed) return;
+        if (!error) {
+          // Directory was re-created, watch the new one
+          if (stats.isDirectory()) this.watch(targetPath);
+          return;
+        }
+        if (error.code !== 'ENOENT') return void this.emit('error', error);
+        this.#post('delete', targetPath);
+      });
+    });
     this.#watchers.set(targetPath, watcher);
   }
 
