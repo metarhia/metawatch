@@ -319,6 +319,35 @@ test('Immediate timeout (timeout: 0)', async () => {
   });
 });
 
+test('Child with the same name as watched directory', async () => {
+  const targetPath = path.join(dir, 'test/example8');
+  fs.mkdirSync(targetPath);
+  const filePath = path.join(targetPath, 'example8');
+
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
+  try {
+    watcher.watch(targetPath);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const changes = [];
+    const deletes = [];
+    watcher.on('change', (fileName) => changes.push(fileName));
+    watcher.on('delete', (fileName) => deletes.push(fileName));
+    fs.writeFileSync(filePath, 'content');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.deepStrictEqual(changes, [filePath]);
+    fs.unlinkSync(filePath);
+    fs.mkdirSync(filePath);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    fs.rmdirSync(filePath);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.strictEqual(deletes.includes(filePath), true);
+  } finally {
+    watcher.close();
+    await cleanup(targetPath);
+  }
+});
+
 test('Unwatched directory deletion', async () => {
   const parentPath = path.join(dir, 'test/example9');
   const targetPath = path.join(parentPath, 'target');
@@ -392,6 +421,32 @@ test('Moved directory stops nested watchers', { skip: skipWin32 }, async () => {
   } finally {
     watcher.close();
     await cleanup(basePath);
+  }
+});
+
+test('Re-created directory is watched again', async () => {
+  const targetPath = path.join(dir, 'test/example12');
+  const distPath = path.join(targetPath, 'dist');
+  const filePath = path.join(distPath, 'file.txt');
+  fs.mkdirSync(distPath, { recursive: true });
+
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
+  try {
+    watcher.watch(targetPath);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    fs.rmSync(distPath, { recursive: true });
+    fs.mkdirSync(distPath);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const changes = [];
+    watcher.on('change', (fileName) => changes.push(fileName));
+    fs.writeFileSync(filePath, 'content');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.strictEqual(changes.includes(filePath), true);
+  } finally {
+    watcher.close();
+    await cleanup(targetPath);
   }
 });
 
