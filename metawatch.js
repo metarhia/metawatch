@@ -6,6 +6,9 @@ const { EventEmitter } = require('node:events');
 
 const DEFAULT_WATCH_TIMEOUT = 5000;
 
+// Normalize path and drop trailing separator: './src/' -> 'src'
+const normalize = (filePath) => path.join(filePath, '.');
+
 class DirectoryWatcher extends EventEmitter {
   #watchers = new Map();
   #timeout = DEFAULT_WATCH_TIMEOUT;
@@ -26,7 +29,7 @@ class DirectoryWatcher extends EventEmitter {
       this.#timer = null;
     }
     const watchers = this.#watchers.values();
-    for (const watcher of watchers) if (watcher) watcher.close();
+    for (const watcher of watchers) watcher.close();
     this.#watchers.clear();
     this.#queue.clear();
   }
@@ -56,9 +59,6 @@ class DirectoryWatcher extends EventEmitter {
   }
 
   #watchDirectory(targetPath) {
-    if (this.#closed) return;
-    const existing = this.#watchers.get(targetPath);
-    if (existing) return;
     const watcher = fs.watch(targetPath, (event, fileName) => {
       if (this.#closed) return;
       if (!fileName) return;
@@ -82,13 +82,16 @@ class DirectoryWatcher extends EventEmitter {
     this.#watchers.set(targetPath, watcher);
   }
 
-  watch(targetPath) {
+  watch(dirPath) {
     if (this.#closed) return;
-    const watcher = this.#watchers.get(targetPath);
-    if (watcher) return;
-    this.#watchers.set(targetPath, null);
+    const targetPath = normalize(dirPath);
+    if (this.#watchers.has(targetPath)) return;
+    // Placeholder until scan completes, identifies this watch() call
+    const pending = { close() {} };
+    this.#watchers.set(targetPath, pending);
     const options = { withFileTypes: true };
     fs.readdir(targetPath, options, (error, files) => {
+      if (this.#watchers.get(targetPath) !== pending) return;
       if (error) {
         this.#watchers.delete(targetPath);
         return void this.emit('error', error);
@@ -103,11 +106,17 @@ class DirectoryWatcher extends EventEmitter {
     });
   }
 
-  unwatch(targetPath) {
-    const watcher = this.#watchers.get(targetPath);
-    if (!watcher) return;
-    this.#watchers.delete(targetPath);
-    watcher.close();
+  unwatch(dirPath) {
+    const targetPath = normalize(dirPath);
+    if (!this.#watchers.has(targetPath)) return;
+    const prefix = path.join(targetPath, path.sep);
+    for (const [watchedPath, watcher] of this.#watchers) {
+      if (watchedPath !== targetPath && !watchedPath.startsWith(prefix)) {
+        continue;
+      }
+      this.#watchers.delete(watchedPath);
+      watcher.close();
+    }
   }
 }
 

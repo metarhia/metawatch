@@ -318,3 +318,127 @@ test('Immediate timeout (timeout: 0)', async () => {
     }, WRITE_TIMEOUT);
   });
 });
+
+test('Unwatched directory deletion', async () => {
+  const parentPath = path.join(dir, 'test/example9');
+  const targetPath = path.join(parentPath, 'target');
+  fs.mkdirSync(targetPath, { recursive: true });
+
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
+  try {
+    watcher.watch(parentPath);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const deletes = [];
+    watcher.on('delete', (fileName) => deletes.push(fileName));
+    watcher.unwatch(targetPath);
+    fs.rmSync(targetPath, { recursive: true });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.deepStrictEqual(deletes, [targetPath]);
+  } finally {
+    watcher.close();
+    await cleanup(parentPath);
+  }
+});
+
+test('Unwatch before watch is ready', async () => {
+  const targetPath = path.join(dir, 'test/example10');
+  fs.mkdirSync(targetPath);
+
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
+  try {
+    watcher.watch(targetPath);
+    watcher.unwatch(targetPath);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    let changeCount = 0;
+    watcher.on('change', () => changeCount++);
+    fs.writeFileSync(path.join(targetPath, 'file.txt'), 'content');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.strictEqual(changeCount, 0);
+  } finally {
+    watcher.close();
+    await cleanup(targetPath);
+  }
+});
+
+const skipWin32 =
+  process.platform === 'win32' && 'Windows can not move a watched directory';
+
+test('Moved directory stops nested watchers', { skip: skipWin32 }, async () => {
+  const basePath = path.join(dir, 'test/example11');
+  const targetPath = path.join(basePath, 'target');
+  const subPath = path.join(targetPath, 'sub');
+  const movedPath = path.join(basePath, 'moved');
+  fs.mkdirSync(path.join(subPath, 'deep'), { recursive: true });
+
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
+  try {
+    watcher.watch(targetPath);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const changes = [];
+    const deletes = [];
+    watcher.on('change', (fileName) => changes.push(fileName));
+    watcher.on('delete', (fileName) => deletes.push(fileName));
+    fs.renameSync(subPath, movedPath);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    fs.writeFileSync(path.join(movedPath, 'deep/file.txt'), 'content');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const stalePath = path.join(subPath, 'deep/file.txt');
+    assert.strictEqual(changes.includes(stalePath), false);
+    assert.strictEqual(deletes.includes(stalePath), false);
+    assert.strictEqual(deletes.includes(subPath), true);
+  } finally {
+    watcher.close();
+    await cleanup(basePath);
+  }
+});
+
+test('Unwatch relative path with nested directories', async () => {
+  const targetPath = path.join(dir, 'test/example13');
+  const nestedPath = path.join(targetPath, 'nested');
+  fs.mkdirSync(nestedPath, { recursive: true });
+  const relativePath = path.relative(dir, targetPath);
+
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
+  try {
+    watcher.watch(`.${path.sep}${relativePath}${path.sep}`);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    watcher.unwatch(relativePath);
+
+    // macOS can deliver late events queued before unwatch(), skip them
+    let changeCount = 0;
+    watcher.on('change', (fileName) => {
+      if (fileName.endsWith('file.txt')) changeCount++;
+    });
+    fs.writeFileSync(path.join(nestedPath, 'file.txt'), 'content');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.strictEqual(changeCount, 0);
+  } finally {
+    watcher.close();
+    await cleanup(targetPath);
+  }
+});
+
+test('Watch again right after unwatch', async () => {
+  const targetPath = path.join(dir, 'test/example14');
+  fs.mkdirSync(targetPath);
+
+  const watcher = new metawatch.DirectoryWatcher(OPTIONS);
+  try {
+    watcher.watch(targetPath);
+    watcher.unwatch(targetPath);
+    watcher.watch(targetPath);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    let changeCount = 0;
+    watcher.on('change', () => changeCount++);
+    fs.writeFileSync(path.join(targetPath, 'file.txt'), 'content');
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert.strictEqual(changeCount, 1);
+  } finally {
+    watcher.close();
+    await cleanup(targetPath);
+  }
+});
