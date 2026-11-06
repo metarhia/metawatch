@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { test } = require('node:test');
 const assert = require('node:assert');
+const { setTimeout: delay } = require('node:timers/promises');
 
 const metawatch = require('..');
 
@@ -236,7 +237,7 @@ test('close() stops all watchers', async () => {
 
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
   watcher.watch(targetPath);
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await delay(50);
 
   let receivedAfterClose = false;
   watcher.on('change', () => {
@@ -245,7 +246,7 @@ test('close() stops all watchers', async () => {
   watcher.close();
   const filePath = path.join(targetPath, 'after-close.txt');
   fs.writeFileSync(filePath, 'content');
-  await new Promise((resolve) => setTimeout(resolve, 150));
+  await delay(150);
   assert.strictEqual(receivedAfterClose, false);
   await cleanup(targetPath);
 });
@@ -265,13 +266,13 @@ test('Watch same directory twice', async () => {
     watcher.watch(targetPath);
     watcher.watch(targetPath);
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await delay(50);
 
     let changeCount = 0;
     watcher.on('change', () => changeCount++);
     const filePath = path.join(targetPath, 'single-file.txt');
     fs.writeFileSync(filePath, 'content');
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await delay(250);
     assert.strictEqual(changeCount, 1);
   } finally {
     watcher.close();
@@ -327,20 +328,20 @@ test('Child with the same name as watched directory', async () => {
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
   try {
     watcher.watch(targetPath);
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await delay(50);
 
     const changes = [];
     const deletes = [];
     watcher.on('change', (fileName) => changes.push(fileName));
     watcher.on('delete', (fileName) => deletes.push(fileName));
     fs.writeFileSync(filePath, 'content');
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     assert.deepStrictEqual(changes, [filePath]);
     fs.unlinkSync(filePath);
     fs.mkdirSync(filePath);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     fs.rmdirSync(filePath);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     assert.strictEqual(deletes.includes(filePath), true);
   } finally {
     watcher.close();
@@ -356,13 +357,13 @@ test('Unwatched directory deletion', async () => {
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
   try {
     watcher.watch(parentPath);
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await delay(50);
 
     const deletes = [];
     watcher.on('delete', (fileName) => deletes.push(fileName));
     watcher.unwatch(targetPath);
     fs.rmSync(targetPath, { recursive: true });
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     assert.deepStrictEqual(deletes, [targetPath]);
   } finally {
     watcher.close();
@@ -378,12 +379,12 @@ test('Unwatch before watch is ready', async () => {
   try {
     watcher.watch(targetPath);
     watcher.unwatch(targetPath);
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await delay(50);
 
     let changeCount = 0;
     watcher.on('change', () => changeCount++);
     fs.writeFileSync(path.join(targetPath, 'file.txt'), 'content');
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     assert.strictEqual(changeCount, 0);
   } finally {
     watcher.close();
@@ -404,16 +405,16 @@ test('Moved directory stops nested watchers', { skip: skipWin32 }, async () => {
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
   try {
     watcher.watch(targetPath);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await delay(100);
 
     const changes = [];
     const deletes = [];
     watcher.on('change', (fileName) => changes.push(fileName));
     watcher.on('delete', (fileName) => deletes.push(fileName));
     fs.renameSync(subPath, movedPath);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await delay(100);
     fs.writeFileSync(path.join(movedPath, 'deep/file.txt'), 'content');
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     const stalePath = path.join(subPath, 'deep/file.txt');
     assert.strictEqual(changes.includes(stalePath), false);
     assert.strictEqual(deletes.includes(stalePath), false);
@@ -433,16 +434,16 @@ test('Re-created directory is watched again', async () => {
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
   try {
     watcher.watch(targetPath);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await delay(100);
 
     fs.rmSync(distPath, { recursive: true });
     fs.mkdirSync(distPath);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await delay(100);
 
     const changes = [];
     watcher.on('change', (fileName) => changes.push(fileName));
     fs.writeFileSync(filePath, 'content');
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     assert.strictEqual(changes.includes(filePath), true);
   } finally {
     watcher.close();
@@ -459,7 +460,7 @@ test('Unwatch relative path with nested directories', async () => {
   const watcher = new metawatch.DirectoryWatcher(OPTIONS);
   try {
     watcher.watch(`.${path.sep}${relativePath}${path.sep}`);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await delay(100);
     watcher.unwatch(relativePath);
 
     // macOS can deliver late events queued before unwatch(), skip them
@@ -468,7 +469,7 @@ test('Unwatch relative path with nested directories', async () => {
       if (fileName.endsWith('file.txt')) changeCount++;
     });
     fs.writeFileSync(path.join(nestedPath, 'file.txt'), 'content');
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     assert.strictEqual(changeCount, 0);
   } finally {
     watcher.close();
@@ -485,12 +486,12 @@ test('Watch again right after unwatch', async () => {
     watcher.watch(targetPath);
     watcher.unwatch(targetPath);
     watcher.watch(targetPath);
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await delay(50);
 
     let changeCount = 0;
     watcher.on('change', () => changeCount++);
     fs.writeFileSync(path.join(targetPath, 'file.txt'), 'content');
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await delay(300);
     assert.strictEqual(changeCount, 1);
   } finally {
     watcher.close();
